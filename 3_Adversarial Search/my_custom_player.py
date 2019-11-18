@@ -165,10 +165,11 @@ def default_policy(state):
     player = state.player()
     while not state.terminal_test():
         state = state.result(random.choice(state.actions()))
-    return -1 if state._has_liberties(player) else 1
+    # return -1 if state._has_liberties(player) else 1
+    return -1 if any(state.liberties(state.locs[player])) else 1
 
 def backup_nega_max(node, reward):
-    while node != None:
+    while node is not None:
         node.visit_count += 1
         node.reward += reward
         reward = -reward
@@ -184,7 +185,7 @@ def iterative_deepening(state, player, depth = 3):
     return best_move
 
 
-def alpha_beta_search(gameState, player, depth):
+def alpha_beta_search(game_state, player, depth):
     """ Return the move along a branch of the game tree that
     has the best possible value.  A move is a pair of coordinates
     in (column, row) order corresponding to a legal move for
@@ -199,42 +200,42 @@ def alpha_beta_search(gameState, player, depth):
     best_move = None
 
     # TODO: modify the function signature to accept an alpha and beta parameter
-    def min_value(gameState, alpha, beta, depth):
+    def min_value(state, min_alpha, min_beta, min_depth):
         """ Return the value for a win (+1) if the game is over,
         otherwise return the minimum value over all legal child
         nodes.
         """
-        if gameState.terminal_test():
-            return gameState.utility(0)
-        if depth <=0 :
-            return score(gameState)
+        if state.terminal_test():
+            return state.utility(0)
+        if min_depth <=0 :
+            return score(state)
 
         v = float("inf")
-        for a in gameState.actions():
-            v = min(v, max_value(gameState.result(a), alpha, beta, depth - 1))
-            if v <= alpha:
+        for a in state.actions():
+            v = min(v, max_value(state.result(a), min_alpha, min_beta, min_depth - 1))
+            if v <= min_alpha:
                 return v
-            beta = min(beta, v)
+            min_beta = min(min_beta, v)
         return v
 
 
     # TODO: modify the function signature to accept an alpha and beta parameter
-    def max_value(gameState, alpha, beta, depth):
+    def max_value(state, max_alpha, max_beta, max_depth):
         """ Return the value for a loss (-1) if the game is over,
         otherwise return the maximum value over all legal child
         nodes.
         """
-        if gameState.terminal_test():
-            return gameState.utility(0)
-        if depth <=0 :
-            return score(gameState)
+        if state.terminal_test():
+            return state.utility(0)
+        if max_depth <=0 :
+            return score(state)
 
         v = float("-inf")
-        for a in gameState.actions():
-            v = max(v, min_value(gameState.result(a), alpha, beta, depth - 1))
-            if v >= beta:
+        for a in state.actions():
+            v = max(v, min_value(state.result(a), max_alpha, max_beta, max_depth - 1))
+            if v >= max_beta:
                 return v
-            alpha = max(alpha, v)
+            max_alpha = max(max_alpha, v)
         return v
 
 
@@ -245,11 +246,10 @@ def alpha_beta_search(gameState, player, depth):
         opp_liberties = state.liberties(opp_loc)
         return len(own_liberties) - len(opp_liberties)
 
-    for a in gameState.actions():
-        vv = min_value(gameState.result(a), alpha, beta, depth)
+    for a in game_state.actions():
+        vv = min_value(game_state.result(a), alpha, beta, depth)
         alpha = max(alpha, vv)
         if vv > best_score:
             best_score = vv
             best_move = a
     return best_move
-
