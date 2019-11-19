@@ -46,10 +46,13 @@ class CustomPlayer(DataPlayer):
         if state.ply_count < 2:
             action = random.choice(state.actions())
         else:
-            # action = uct_search(state).action
-            action = iterative_deepening(state, self.player_id, 3)
+            action = uct_search(state).action
+            # action = iterative_deepening(state, self.player_id, 5)
         # dbstate = DebugState.from_state(state)
         # print (dbstate)
+        if action is None:
+            print("Incorrect action")
+            action = random.choice(state.actions())
         self.queue.put(action)
 
 # A policy is a mapping from states to actions, specifying which action will be
@@ -112,7 +115,7 @@ class Node():
         self.actions_done = []
         self.children = []
 
-budget = 40
+budget = 25
 
 def uct_search(state):
     root_node = Node(state)
@@ -182,6 +185,8 @@ def iterative_deepening(state, player, depth = 3):
     best_move = None
     for d in range(1, depth + 1):
         best_move = alpha_beta_search(state, player, d)
+    if best_move is None:
+        best_move = random.choice(state.actions())
     return best_move
 
 
