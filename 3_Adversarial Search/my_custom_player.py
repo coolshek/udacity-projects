@@ -1,10 +1,10 @@
 
 from sample_players import DataPlayer
 import random, math
-from isolation import DebugState
+# from isolation import DebugState
 
-budget = 35
-base_depth = 5
+budget = 75
+base_depth = 3
 
 # A policy is a mapping from states to actions, specifying which action will be
 # chosen from each state in S. The aim is to find the policy that yields the highest expected reward.
@@ -91,16 +91,16 @@ class CustomPlayerMCTS(DataPlayer):
         **********************************************************************
         """
         if len (state.actions()) == 1:
-            dbstate = DebugState.from_state(state)
-            print (dbstate)
+            # dbstate = DebugState.from_state(state)
+            # print (dbstate)
             self.queue.put(state.actions()[0])
             return
         if state.ply_count < 2:
             action = random.choice(state.actions())
         else:
             action = self.uct_search(state).action
-        dbstate = DebugState.from_state(state)
-        print (dbstate)
+        # dbstate = DebugState.from_state(state)
+        # print (dbstate)
         if action is None:
             print("Incorrect action")
             action = random.choice(state.actions())
